@@ -42,34 +42,5 @@ authentication = function (req, res, next) {
 
 
 
-authorization = function (req, res, next) {
-  try {
-    if (req.params) {
-      if (!isvalidObjectId(req.params.userId)) {
-        return res
-          .status(400)
-          .send({ status: false, msg: "Not a valid UserId" });
-      }
-      if (req.params.userId == req.decode.toString()) {
-        next();
-      } else {
-        return res
-          .status(403)
-          .send({ status: false, msg: "not Authorized User!!!" });
-      }
-    } else {
-      return res
-        .status(400)
-        .send({ status: false, msg: "userId is require in params" });
-    }
-  } catch (err) {
-    return res.status(500).send({
-      status: false,
-      msg: "Server Error authorization !!!",
-      err: err.message,
-    });
-  }
-};
 
-
-module.exports = {authentication,authorization}
+module.exports = {authentication,}

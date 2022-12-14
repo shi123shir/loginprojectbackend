@@ -111,17 +111,18 @@ const loginUser = async function(req,res){
          .send({ status: false, message: "please enter password in valid format", });
 
 
-      let user = await Usermodel.findOne({ email })
-      if (!user)
-       return res
-       .status(400)
-       .send({ status: false, message: "email or password is incorrect"})
+        let user = await Usermodel.findOne({email:email })
 
+      if (!user){
+       return res
+       .status(404)
+       .send({ status: false, message: "user not found"})
+      }
       let hashedPassword = await bcrypt.compare(password, user.password)
       if (!hashedPassword) 
       return res
       .status(400)
-      .send({ status: false, message: "email or password is incorrect"})
+      .send({ status: false, message: "password is incorrect"})
 
       let token = jwt.sign(
          {
@@ -134,7 +135,7 @@ const loginUser = async function(req,res){
 
      return res
      .status(201)
-     .send({ status: true, message: 'token created successfully', data: { userId: User._id, token: token}})
+     .send({ status: true, message: 'token created successfully', data: { userId: user._id, token: token}})
    }
    catch (error) {
      return res

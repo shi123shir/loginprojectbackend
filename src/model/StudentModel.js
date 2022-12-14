@@ -14,7 +14,7 @@ const studentSchema = mongoose.Schema({
         trim: true
     },
 
-    user:{
+    userId:{
         type:ObjectId,
         ref:"user",
         required:true, 

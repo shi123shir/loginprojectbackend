@@ -10,7 +10,7 @@ const isValidType = function (value) {
 };
 
 const isValidNumber = function (value) {
-   if (typeof value !== "number" || value.trim().length === 0) {
+   if (typeof value !== "number" ) {
       return false;
    }
    return true;
@@ -85,6 +85,11 @@ const createStudent = async function (req, res) {
             .status(400)
             .send({ status: false, msg: "invalid userId format" });
 
+
+       if(userId !==req.decode.toString())return res
+       .status(403)
+       .send({satus:false, message:"not Authorized User!!!"})
+
       let user = await userModel.findById(userId)
 
       if (!user)
@@ -136,23 +141,22 @@ const createStudent = async function (req, res) {
 const getStudent = async function (req, res) {
 
    try {
-      let studentId = req.params.studentId
+      let userId = req.params.userId
 
-      if (!mongoose.isValidObjectId(studentId))
+      if (!mongoose.isValidObjectId(userId))
          return res
             .status(400)
-            .send({ satus: false, message: "studentId is not valid" })
+            .send({ status: false, msg: "invalid userId format" })
 
-      let allstudent = await StudentModel.findById(studentId)
-      if (!allstudent) return res
+      if(userId !==req.decode.toString())return res
+      .status(403)
+      .send({satus:false, message:"not Authorized User!!!"})
+      
+      let allstudent = await StudentModel.find({userId:userId,isDeleted:false}).select({_id:0,fname:1,lname:1,marks:1,subject:1})
+      if (!allstudent) 
+      return res
          .status(404)
          .send({ satus: false, message: "studentId does not Exist" })
-
-      let result = await StudentModel.findOne({ _id: studentId, isDeleted: false })
-      if (!result)
-         return res
-            .status(404)
-            .send({ status: false, message: "student Not Found Or Deleted" })
 
       return res
          .status(200)
@@ -193,8 +197,14 @@ const updateStudent = async function (req, res) {
          return res
             .status(404)
             .send({ status: false, message: "student does not found" })
+
+            if(student.userId.toString() !==req.decode.toString())
+            return res
+       .status(403)
+       .send({satus:false, message:"not Authorized User!!!"})
+
       if (fname) {
-         if (!isValidType.test(fname))
+         if (!isValidType(fname))
             return res
                .status(400)
                .send({ status: false, message: "first name shoud be in string" })
@@ -209,7 +219,7 @@ const updateStudent = async function (req, res) {
 
       if (lname) {
 
-         if (!isValidType.test(lname))
+         if (!isValidType(lname))
             return res
                .status(400)
                .send({ status: false, message: "last name shoud be in string" })
@@ -224,7 +234,7 @@ const updateStudent = async function (req, res) {
 
       if (subject) {
 
-         if (!isValidType.test(subject))
+         if (!isValidType(subject))
             return res
                .status(400)
                .send({ status: false, message: "subject should be a string" })
@@ -234,7 +244,7 @@ const updateStudent = async function (req, res) {
 
       if (marks) {
 
-         if (!isValidNumber.test(marks))
+         if (!isValidNumber(marks))
             return res
                .status(400)
                .send({ status: false, message: "marks should be a Number" })
@@ -274,6 +284,10 @@ const deleteStudent = async function(req, res){
            .status(404)
            .send({ status: false, message: "student does not found" })
        }
+
+       if(student.userId.toString() !==req.decode.toString())return res
+       .status(403)
+       .send({satus:false, message:"not Authorized User!!!"})
 
        await StudentModel.updateOne({ _id: studentId, isDeleted: false }, { $set: { isDeleted: true, deletedAt: new Date()}})
        return res.status(200).send({ status: true, message: "student deleted successfully" })
